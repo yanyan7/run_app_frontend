@@ -1,40 +1,55 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import { useEffect, useState, useContext } from "react";
+import { MessageContext } from "../App";
+import { getResults } from '../api/result'
+import Logout from './Logout'
 
 const Result = () => {
 
-  const BASE_URL = 'http://localhost:3001/api/v1'
-  const API_HEADER = {
-    'content-type': 'application/json',
-    'uid': 'test@example.com',
-    'client': 'jfD5l2dpHpwyDHPMCy3TDg',
-    'access-token': 'bf7ub-mYPKZoUq4THuIoPQ'
-  }
-
+  const { setMessage } = useContext(MessageContext);
   const [resultList, setRsultList] = useState([]);
-  const [error, setError] = useState(null);
+  const [year, setYear] = useState(new Date().getFullYear());
+  const [month, setMonth] = useState(new Date().getMonth() + 1);
+
+  const handlePrev = () => {
+    if (month === 1) {
+      setYear(year - 1);
+      setMonth(12);
+    } else {
+      setMonth(month - 1);
+    }
+  };
+
+  const handleNext = () => {
+    if (month === 12) {
+      setYear(year + 1);
+      setMonth(1);
+    } else {
+      setMonth(month + 1);
+    }
+  };
 
   useEffect(() => {
-    const getResult = async () => {
+    const fetchData = async () => {
       try {
-        const response = await axios.get(
-          `${BASE_URL}/results?user_id=1&year=2023&month=8`,
-          { headers: API_HEADER }
-        );
+        const response = await getResults(year, month);
         setRsultList(response.data.data);
       } catch (error) {
-        setError(error.message)
+        setMessage(error.message)
       }
     };
-    getResult();
-  }, [])
-
-
-  if (error) return `Error: ${error}`;
+    fetchData();
+  }, [year, month])
 
   return (
     <div>
+      <Logout />
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <button onClick={handlePrev}>前月</button>
+        <h2 style={{ margin: '20px 20px' }}>{year}年{month}月</h2>
+        <button onClick={handleNext}>翌月</button>
+      </div>
       <div style={{ display: 'flex' }}>
+        <p style={{ width: '70px' }}></p>
         <p style={{ fontWeight: 'bold', width: '120px' }}>日付</p>
         <p style={{ fontWeight: 'bold', width: '50px' }}>睡眠</p>
         <p style={{ fontWeight: 'bold', width: '70px' }}>体重</p>
@@ -47,22 +62,25 @@ const Result = () => {
         <p style={{ fontWeight: 'bold', width: '70px' }}>ペース</p>
         <p style={{ fontWeight: 'bold', width: '80px' }}>場所</p>
         <p style={{ fontWeight: 'bold', width: '150px' }}>シューズ</p>
-        <p style={{ fontWeight: 'bold', width: '150px' }}>コメント</p>
+        <p style={{ fontWeight: 'bold', width: '150px' }}>コメント</p> 
       </div>
 
       {resultList.map((daily, index) => (
         <div key={index} style={{ display: 'flex' }}>
+          <p style={{ width: '70px' }}>
+            <button>編集</button>
+          </p>
           <p style={{ width: '120px' }}>
             {daily.year}/{daily.month}/{daily.day}({daily.weekday})
           </p>
           <p style={{ width: '50px' }}>
-            {daily.sleep_pattern_name}
+            {daily.sleepPatternName}
           </p>
           <p style={{ width: '70px' }}>
             {daily.weight}{daily.weight? 'kg' : ''}
           </p>
           <p style={{ width: '150px' }}>
-            {daily.daily_note}
+            {daily.dailyNote}
           </p>
           <div>
             {daily.results.map((result, index2) => (
@@ -71,7 +89,7 @@ const Result = () => {
                 {result.temperature}度
               </p>
               <p style={{ width: '70px' }}>
-                {result.timing_name}
+                {result.timingName}
               </p>
               <p style={{ width: '100px' }}>
                 {result.content}
@@ -92,8 +110,11 @@ const Result = () => {
                 {result.shoes}
               </p>
               <p style={{ width: '150px' }}>
-                {result.result_note}
+                {result.resultNote}
               </p>
+              {/* <p style={{ width: '50px' }}>
+                <button>編集</button>
+              </p> */}
             </div>
             ))
             }
