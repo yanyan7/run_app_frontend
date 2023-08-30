@@ -9,7 +9,6 @@ import NotFound from './Components/NotFound';
 import Message from './Components/Message'
 
 export const AuthContext = createContext();
-export const MessageContext = createContext();
 
 function App() {
   const [loading, setLoading] = useState(true);
@@ -43,8 +42,8 @@ function App() {
       if (isSignedIn) {
         return children;
       } else {
-        setMessage('セッションが切れました。ログインして下さい。');
-        return <Navigate replace to="/login"/>;
+        const message = 'セッションが切れました。ログインして下さい。';
+        return <Navigate replace to="/login" state={{message: message}} key={'aaa'} />;
       }
     } else {
       return <></>;
@@ -62,38 +61,32 @@ function App() {
         setCurrentUser
       }}
     >
-      <MessageContext.Provider
-        value={{
-          message,
-          setMessage
-        }}
-      >
-        <Message />
-        <BrowserRouter>
-          <Routes>
-            <Route path={`/`} element={<Login />} />
-            <Route path={`/signup`} element={<SignUp />} />
-            <Route path={`/login`} element={<Login />} />
-            <Route
-              path={`/result`}
-              element={
-                <Private path={`/result`}>
-                  <Result />
-                </Private>
-              }
-            />
-            <Route
-              path={`/form`}
-              element={
-                <Private path={`/form`}>
-                  <Form />
-                </Private>
-              }
-            />
-            <Route path={`/*`} element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </MessageContext.Provider>
+      
+      <Message message={message} />
+      <BrowserRouter>
+        <Routes>
+          <Route path={`/`} element={<Login />} />
+          <Route path={`/signup`} element={<SignUp />} />
+          <Route path={`/login`} element={<Login />} />
+          <Route
+            path={`/result`}
+            element={
+              <Private path={`/result`}>
+                <Result />
+              </Private>
+            }
+          />
+          <Route
+            path={`/form/:dailyId`}
+            element={
+              <Private path={`/form/:dailyId`}>
+                <Form />
+              </Private>
+            }
+          />
+          <Route path={`/*`} element={<NotFound />} />
+        </Routes>
+      </BrowserRouter>
     </AuthContext.Provider>
   );
 }

@@ -1,13 +1,13 @@
 import { useState, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { signUp } from "../api/auth";
-import { MessageContext } from "../App";
+import Message from './Message'
 
 export const SignUp = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
-  const { setMessage } = useContext(MessageContext);
+  const [message, setMessage] = useState();
   const navigate = useNavigate();
 
   const generateParams = () => {
@@ -36,6 +36,7 @@ export const SignUp = () => {
   };
   return (
     <>
+      <Message message={message} />
       <h1>サインアップページです</h1>
       <form>
         <div>

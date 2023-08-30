@@ -1,14 +1,17 @@
 import { useEffect, useState, useContext } from "react";
-import { MessageContext } from "../App";
-import { getResults } from '../api/result'
-import Logout from './Logout'
+import { useNavigate, useLocation } from "react-router-dom";
+import { getResults } from '../api/result';
+import Logout from './Logout';
+import Message from './Message'
 
 const Result = () => {
-
-  const { setMessage } = useContext(MessageContext);
+  const location = useLocation();
   const [resultList, setRsultList] = useState([]);
   const [year, setYear] = useState(new Date().getFullYear());
   const [month, setMonth] = useState(new Date().getMonth() + 1);
+  const [message, setMessage] = useState(location.state? location.state.message : '');
+
+  const navigate = useNavigate();
 
   const handlePrev = () => {
     if (month === 1) {
@@ -28,6 +31,10 @@ const Result = () => {
     }
   };
 
+  const handleEdit = (dailyId, date) => {
+    navigate(`/form/${dailyId}`, { state: { date: date } });
+  };
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -43,6 +50,7 @@ const Result = () => {
   return (
     <div>
       <Logout />
+      <Message message={message} />
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <button onClick={handlePrev}>前月</button>
         <h2 style={{ margin: '20px 20px' }}>{year}年{month}月</h2>
@@ -68,7 +76,7 @@ const Result = () => {
       {resultList.map((daily, index) => (
         <div key={index} style={{ display: 'flex' }}>
           <p style={{ width: '70px' }}>
-            <button>編集</button>
+            <button onClick={ () => handleEdit(daily.dailyId? daily.dailyId : 'new', daily.date) }>編集</button>
           </p>
           <p style={{ width: '120px' }}>
             {daily.year}/{daily.month}/{daily.day}({daily.weekday})
@@ -86,7 +94,8 @@ const Result = () => {
             {daily.results.map((result, index2) => (
             <div key={index2} style={{ display: 'flex' }}>
               <p style={{ width: '70px' }}>
-                {result.temperature}度
+                {result.temperature}
+                {result.temperature? '度' : ''}
               </p>
               <p style={{ width: '70px' }}>
                 {result.timingName}
@@ -95,7 +104,8 @@ const Result = () => {
                 {result.content}
               </p>
               <p style={{ width: '70px' }}>
-                {result.distance}km
+                {result.distance}
+                {result.distance? 'km' : ''}
               </p>
               <p style={{ width: '80px' }}>
                 {result.time}
@@ -112,9 +122,6 @@ const Result = () => {
               <p style={{ width: '150px' }}>
                 {result.resultNote}
               </p>
-              {/* <p style={{ width: '50px' }}>
-                <button>編集</button>
-              </p> */}
             </div>
             ))
             }

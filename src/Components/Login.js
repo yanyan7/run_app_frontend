@@ -1,14 +1,16 @@
 import Cookies from "js-cookie";
-import { useContext, useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { useContext, useEffect, useState } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { login } from "../api/auth";
-import { AuthContext, MessageContext } from "../App";
+import { AuthContext } from "../App";
+import Message from './Message'
 
-export const Login = () => {
+export const Login = ({ _message }) => {
+  const location = useLocation();
   const { setIsSignedIn, setCurrentUser } = useContext(AuthContext);
-  const { setMessage } = useContext(MessageContext);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [message, setMessage] = useState(location.state? location.state.message : '');
 
   const navigate = useNavigate();
 
@@ -45,6 +47,7 @@ export const Login = () => {
   };
   return (
     <>
+      <Message message={message} />
       <h1>ログインページです</h1>
       <form>
         <div>
